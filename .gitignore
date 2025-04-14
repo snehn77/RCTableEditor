@@ -1,21 +1,47 @@
-# Visual Studio files
-.vs/
+# ASP.NET Core
 bin/
 obj/
+.vs/
 *.user
 *.suo
+appsettings.Development.json
+appsettings.local.json
+
+# React / Node.js
+/ClientApp/node_modules
+/ClientApp/build
+/ClientApp/.env.local
+/ClientApp/.env.development.local
+/ClientApp/.env.test.local
+/ClientApp/.env.production.local
+/ClientApp/npm-debug.log*
+/ClientApp/yarn-debug.log*
+/ClientApp/yarn-error.log*
+
+# SQLite & LiteDB
+*.db
+*.sqlite
+*.sqlite3
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
 
 # Build results
 [Dd]ebug/
 [Rr]elease/
 x64/
 x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
+build/
 bld/
 [Bb]in/
 [Oo]bj/
-[Ll]og/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
 
 # NuGet Packages
 *.nupkg
@@ -23,22 +49,6 @@ bld/
 !**/packages/build/
 *.nuget.props
 *.nuget.targets
-
-# SQLite database files
-*.db
-*.sqlite
-*.sqlite3
-
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Local appsettings
-appsettings.Development.json
-appsettings.local.json
 
 # Logs
 logs/
