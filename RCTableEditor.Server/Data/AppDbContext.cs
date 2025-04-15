@@ -29,6 +29,9 @@ namespace RCTableEditor.Server.Data
                 .HasFilter("IsDeleted = 0");
 
             // Add additional configurations as needed
+            modelBuilder.Entity<ChangeHistory>().HasKey(c => c.ChangeId);  // 👈 Make sure ChangeHistory.cs has public int Id { get; set; }
+            modelBuilder.Entity<DefectLayer>().HasKey(c => c.LayerId);
+            modelBuilder.Entity<SessionFilter>().HasKey(c => c.FilterId);
         }
 
         // Add this method to the AppDbContext class

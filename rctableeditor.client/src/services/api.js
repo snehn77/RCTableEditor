@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 const api = axios.create({
-    baseURL: 'https://localhost:7259/api', // Update with your actual API port
+    baseURL: 'https://localhost:62869/api', // Update with your actual API port
     headers: {
         'Content-Type': 'application/json',
     },
@@ -12,6 +12,7 @@ const api = axios.create({
 export const getFilters = async () => {
     try {
         const response = await api.get('/filters/all');
+        console.log('getFilters', response);
         return response.data;
     } catch (error) {
         console.error('Error fetching filters:', error);
@@ -23,6 +24,7 @@ export const getFilters = async () => {
 export const queryTableData = async (queryParams) => {
     try {
         const response = await api.post('/tabledata/query', queryParams);
+        console.log('queryTableData', response.data);
         return response.data;
     } catch (error) {
         console.error('Error fetching table data:', error);

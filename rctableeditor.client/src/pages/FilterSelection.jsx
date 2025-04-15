@@ -22,6 +22,7 @@ const FilterSelection = () => {
             try {
                 setLoading(true);
                 const data = await getFilters();
+                console.log("Filters:", data);
                 setFilters(data);
             } catch (error) {
                 console.error("Failed to fetch filters:", error);
