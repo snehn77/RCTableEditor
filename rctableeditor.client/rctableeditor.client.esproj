@@ -12,6 +12,5 @@
     <Folder Include="src\styles\" />
     <Folder Include="src\utils\" />
     <Folder Include="src\context\" />
-    <Folder Include="src\components\" />
   </ItemGroup>
 </Project>

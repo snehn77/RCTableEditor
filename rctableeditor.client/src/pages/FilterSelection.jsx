@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import {
     Container, Typography, Button, Box,
     FormControl, InputLabel, Select, MenuItem,
@@ -7,6 +8,7 @@ import {
 import { getFilters } from '../services/api';
 
 const FilterSelection = () => {
+    const navigate = useNavigate(); 
     const [filters, setFilters] = useState({
         processes: [],
         layers: [],
@@ -49,19 +51,22 @@ const FilterSelection = () => {
         setSelectedOperations(value);
     };
 
+    // In the handleLoadData function of FilterSelection.jsx
     const handleLoadData = () => {
         if (!selectedProcess || selectedLayers.length === 0) {
             alert('Please select a process and at least one layer');
             return;
         }
 
-        console.log('Loading data with filters:', {
-            process: selectedProcess,
-            layers: selectedLayers,
-            operations: selectedOperations
-        });
+        const filterParams = {
+            sessionId: 'test-session-id', // This should come from your session management
+            processId: selectedProcess,
+            layerIds: selectedLayers,
+            operationIds: selectedOperations.length > 0 ? selectedOperations : null
+        };
 
-        // In a real app, this would navigate to the table editor with these filters
+        // Navigate to table editor with filter parameters
+        navigate('/table-editor', { state: { filterParams } });
     };
 
     return (

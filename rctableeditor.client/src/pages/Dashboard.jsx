@@ -1,61 +1,103 @@
+/* eslint-disable no-constant-binary-expression */
 import React from 'react';
-import { Container, Typography, Button, Box, Paper, Grid } from '@mui/material';
+import {
+    Typography, Button, Box, Paper, Grid,
+    Card, CardContent, CardActions, Chip
+} from '@mui/material';
+import {
+    Add as AddIcon,
+    Upload as UploadIcon,
+    Visibility as VisibilityIcon
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
+
     return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                RC Table Editor
-            </Typography>
+        <>
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Welcome to RC Table Editor
+                </Typography>
+                <Typography variant="body1" color="text.secondary" paragraph>
+                    Use this tool to edit, review, and approve updates to tabular data.
+                </Typography>
 
-            <Typography variant="body1" paragraph>
-                Welcome to the RC Table Editor application. Use this tool to edit, review, and approve updates to tabular data.
-            </Typography>
-
-            <Box sx={{ my: 4, display: 'flex', gap: 2 }}>
-                <Button variant="contained" color="primary">
-                    Start New Editing Session
-                </Button>
-                <Button variant="outlined" color="primary">
-                    Import Session
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => navigate('/filters')}
+                        size="large"
+                    >
+                        Start New Editing Session
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<UploadIcon />}
+                        onClick={() => navigate('/import')}
+                        size="large"
+                    >
+                        Import Session
+                    </Button>
+                </Box>
             </Box>
 
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Recent Activity
-            </Typography>
+            <Box sx={{ mt: 6 }}>
+                <Typography variant="h5" gutterBottom>
+                    Recent Activity
+                </Typography>
 
-            <Paper sx={{ p: 2 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={2}>
-                        <Typography variant="subtitle2">Date</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Typography variant="subtitle2">Process</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Typography variant="subtitle2">Status</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Typography variant="subtitle2">Actions</Typography>
-                    </Grid>
-
-                    {/* Sample entry - this would be dynamically populated */}
-                    <Grid item xs={2}>
-                        <Typography variant="body2">2025-04-14</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Typography variant="body2">1274</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Typography variant="body2" sx={{ color: 'success.main' }}>Approved</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Button size="small">View Details</Button>
-                    </Grid>
+                <Grid container spacing={3}>
+                    {[1, 2, 3].map((item) => (
+                        <Grid item xs={12} md={6} lg={4} key={item}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                                        <Typography variant="subtitle2" color="text.secondary">
+                                            {new Date().toLocaleDateString()}
+                                        </Typography>
+                                        <Chip
+                                            label={item === 1 ? "Approved" : item === 2 ? "Pending" : "Rejected"}
+                                            color={item === 1 ? "success" : item === 2 ? "warning" : "error"}
+                                            size="small"
+                                        />
+                                    </Box>
+                                    <Typography variant="h6" gutterBottom>
+                                        Process: 1274
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Layers: BKTCN, V0RFC
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Changes: 3 added, 2 modified, 1 removed
+                                    </Typography>
+                                </CardContent>
+                                <CardActions>
+                                    <Button
+                                        size="small"
+                                        startIcon={<VisibilityIcon />}
+                                        onClick={() => navigate('/history')}
+                                    >
+                                        View Details
+                                    </Button>
+                                </CardActions>
+                            </Card>
+                        </Grid>
+                    ))}
                 </Grid>
-            </Paper>
-        </Container>
+
+                {/* Empty state for when there's no activity */}
+                {false && (
+                    <Paper sx={{ p: 4, textAlign: 'center' }}>
+                        <Typography variant="body1" color="text.secondary">
+                            No recent activity found. Start a new editing session to get started.
+                        </Typography>
+                    </Paper>
+                )}
+            </Box>
+        </>
     );
 };
 
