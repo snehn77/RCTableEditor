@@ -11,6 +11,5 @@
   <ItemGroup>
     <Folder Include="src\styles\" />
     <Folder Include="src\utils\" />
-    <Folder Include="src\context\" />
   </ItemGroup>
 </Project>

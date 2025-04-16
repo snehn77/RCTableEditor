@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-    Container, Typography, Button, Box, Paper,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Typography, Button,
+    Table, TableBody, TableCell, TableHead, TableRow,
     TablePagination, IconButton, Dialog, DialogTitle, DialogContent,
-    DialogActions, TextField, MenuItem, Select, InputLabel, FormControl,
+    DialogActions, TextField, MenuItem, Select, InputLabel, FormControl, Box
 } from '@mui/material';
 import {
     Add as AddIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
-    Save as SaveIcon
-} from "@mui/icons-material";
-import { queryTableData } from '../services/api';
+    Save as SaveIcon,
+    Visibility as VisibilityIcon
+} from '@mui/icons-material';
+import { queryTableData } from '../../services/api';
+import {
+    TableToolbar,
+    TableActions,
+    FilterSummary,
+    EditFormContainer,
+    ModifiedRow,
+    TableContainer,
+} from './styles';
 
 const TableEditor = () => {
     const location = useLocation();
@@ -163,12 +172,12 @@ const TableEditor = () => {
     const isRowChanged = (rowId) => changedRows.has(rowId);
 
     return (
-        <Container maxWidth="xl" sx={{ mt: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+    <>
+            <TableToolbar>
                 <Typography variant="h4" component="h1">
                     Table Editor
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <TableActions>
                     <Button
                         variant="contained"
                         startIcon={<AddIcon />}
@@ -188,6 +197,7 @@ const TableEditor = () => {
                         color="primary"
                         onClick={handleReviewChanges}
                         disabled={changedRows.size === 0}
+                        startIcon={<VisibilityIcon />}
                     >
                         Review Changes
                     </Button>
@@ -199,11 +209,27 @@ const TableEditor = () => {
                     >
                         Discard Changes
                     </Button>
-                </Box>
-            </Box>
+                </TableActions>
+            </TableToolbar>
 
-            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                <TableContainer sx={{ maxHeight: 440 }}>
+            <FilterSummary>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    <Typography variant="body2">
+                        <strong>Process:</strong> {filterParams.processId}
+                    </Typography>
+                    <Typography variant="body2">
+                        <strong>Layers:</strong> {filterParams.layerIds?.join(', ')}
+                    </Typography>
+                    {filterParams.operationIds && (
+                        <Typography variant="body2">
+                            <strong>Operations:</strong> {filterParams.operationIds?.join(', ')}
+                        </Typography>
+                    )}
+                </Box>
+            </FilterSummary>
+
+            <TableContainer>
+                <Box sx={{ maxHeight: 440, overflow: 'auto' }}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
@@ -230,10 +256,7 @@ const TableEditor = () => {
                                 tableData.map((row) => (
                                     <TableRow
                                         key={row.tableDataId}
-                                        sx={{
-                                            '&:last-child td, &:last-child th': { border: 0 },
-                                            backgroundColor: isRowChanged(row.tableDataId) ? 'rgba(255, 235, 59, 0.1)' : 'inherit'
-                                        }}
+                                        component={isRowChanged(row.tableDataId) ? ModifiedRow : undefined}
                                     >
                                         <TableCell>{row.layerId}</TableCell>
                                         <TableCell>{row.defectTypeId}</TableCell>
@@ -255,7 +278,7 @@ const TableEditor = () => {
                             )}
                         </TableBody>
                     </Table>
-                </TableContainer>
+                </Box>
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25, 50]}
                     component="div"
@@ -265,13 +288,13 @@ const TableEditor = () => {
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
-            </Paper>
+            </TableContainer>
 
             {/* Edit/Add Dialog */}
             <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
                 <DialogTitle>{editMode ? 'Edit Row' : 'Add New Row'}</DialogTitle>
                 <DialogContent>
-                    <Box component="form" sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, my: 2 }}>
+                    <EditFormContainer>
                         <TextField
                             label="Layer ID"
                             name="layerId"
@@ -333,7 +356,7 @@ const TableEditor = () => {
                             onChange={handleInputChange}
                             fullWidth
                         />
-                    </Box>
+                    </EditFormContainer>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} color="primary">
@@ -344,7 +367,7 @@ const TableEditor = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </>
     );
 };
 

@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
 import {
-    Container, Typography, Button, Box,
+    Typography, Button,
     FormControl, InputLabel, Select, MenuItem,
-    Paper, OutlinedInput, Chip
+    OutlinedInput, Chip
 } from '@mui/material';
-import { getFilters } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { getFilters } from '../../services/api';
+import {
+    FilterContainer,
+    FormContainer,
+    FilterActionsContainer,
+    ChipContainer
+} from './styles';
 
 const FilterSelection = () => {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const [filters, setFilters] = useState({
         processes: [],
         layers: [],
@@ -24,8 +30,12 @@ const FilterSelection = () => {
             try {
                 setLoading(true);
                 const data = await getFilters();
-                console.log("Filters:", data);
-                setFilters(data);
+                console.log('Filters response:', data);
+                setFilters({
+                    processes: data?.processes || [],
+                    layers: data?.layers || [],
+                    operations: data?.operations || [],
+                });
             } catch (error) {
                 console.error("Failed to fetch filters:", error);
             } finally {
@@ -51,7 +61,6 @@ const FilterSelection = () => {
         setSelectedOperations(value);
     };
 
-    // In the handleLoadData function of FilterSelection.jsx
     const handleLoadData = () => {
         if (!selectedProcess || selectedLayers.length === 0) {
             alert('Please select a process and at least one layer');
@@ -70,16 +79,16 @@ const FilterSelection = () => {
     };
 
     return (
-        <Container maxWidth="md" sx={{ mt: 4 }}>
+        <>
             <Typography variant="h4" component="h1" gutterBottom>
                 Select Filters
             </Typography>
 
-            <Paper sx={{ p: 3, mt: 3 }}>
+            <FilterContainer>
                 {loading ? (
                     <Typography>Loading filters...</Typography>
                 ) : (
-                    <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <FormContainer>
                         <FormControl required fullWidth>
                             <InputLabel id="process-label">Process</InputLabel>
                             <Select
@@ -93,7 +102,7 @@ const FilterSelection = () => {
                                 </MenuItem>
                                 {filters.processes?.map((process) => (
                                     <MenuItem key={process.processId} value={process.processId}>
-                                        {process.processCode} - {process.name}
+                                        {process.processCode || process.name}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -108,14 +117,14 @@ const FilterSelection = () => {
                                 onChange={handleLayerChange}
                                 input={<OutlinedInput label="Layers" />}
                                 renderValue={(selected) => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    <ChipContainer>
                                         {selected.map((value) => {
                                             const layer = filters.layers?.find(l => l.layerId === value);
                                             return (
                                                 <Chip key={value} label={layer?.layerCode || value} />
                                             );
                                         })}
-                                    </Box>
+                                    </ChipContainer>
                                 )}
                             >
                                 {filters.layers?.map((layer) => (
@@ -135,14 +144,14 @@ const FilterSelection = () => {
                                 onChange={handleOperationChange}
                                 input={<OutlinedInput label="Operations (Optional)" />}
                                 renderValue={(selected) => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    <ChipContainer>
                                         {selected.map((value) => {
                                             const operation = filters.operations?.find(o => o.operationId === value);
                                             return (
                                                 <Chip key={value} label={operation?.operationCode || value} />
                                             );
                                         })}
-                                    </Box>
+                                    </ChipContainer>
                                 )}
                             >
                                 {filters.operations?.map((operation) => (
@@ -153,7 +162,7 @@ const FilterSelection = () => {
                             </Select>
                         </FormControl>
 
-                        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                        <FilterActionsContainer>
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -161,14 +170,17 @@ const FilterSelection = () => {
                             >
                                 Load Data
                             </Button>
-                            <Button variant="outlined">
+                            <Button
+                                variant="outlined"
+                                onClick={() => navigate('/')}
+                            >
                                 Cancel
                             </Button>
-                        </Box>
-                    </Box>
+                        </FilterActionsContainer>
+                    </FormContainer>
                 )}
-            </Paper>
-        </Container>
+            </FilterContainer>
+        </>
     );
 };
 

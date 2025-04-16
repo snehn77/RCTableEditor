@@ -1,27 +1,28 @@
 import axios from 'axios';
 
-// Create axios instance with base URL pointing to your ASP.NET Core API
+// Create axios instance with base URL
 const api = axios.create({
-    baseURL: '/api', // This will use the proxy configuration from vite.config.js
+    baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Add request interceptor for debugging
-api.interceptors.request.use(request => {
-    console.log('Starting API Request:', request);
-    return request;
-});
+// Function to get session ID from localStorage
+const getSessionId = () => {
+    return localStorage.getItem('rc_table_editor_session_id');
+};
 
-// Add response interceptor for debugging
-api.interceptors.response.use(
-    response => {
-        console.log('API Response:', response);
-        return response;
+// Add request interceptor to include session ID
+api.interceptors.request.use(
+    config => {
+        const sessionId = getSessionId();
+        if (sessionId) {
+            config.headers['X-Session-ID'] = sessionId;
+        }
+        return config;
     },
     error => {
-        console.error('API Error:', error);
         return Promise.reject(error);
     }
 );
@@ -29,9 +30,7 @@ api.interceptors.response.use(
 // API functions for filters
 export const getFilters = async () => {
     try {
-        console.log('Fetching filters...');
         const response = await api.get('/filters/all');
-        console.log('Filters response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error fetching filters:', error);
@@ -39,12 +38,9 @@ export const getFilters = async () => {
     }
 };
 
-// Add to your existing api.js file
-
 // API function for querying table data
 export const queryTableData = async (queryParams) => {
     try {
-        console.log('Querying with params:', queryParams);
         const response = await api.post('/tabledata/query', queryParams);
         return response.data;
     } catch (error) {
@@ -54,8 +50,9 @@ export const queryTableData = async (queryParams) => {
 };
 
 // Save draft changes
-export const saveDraftChanges = async (sessionId, changes) => {
+export const saveDraftChanges = async (changes) => {
     try {
+        const sessionId = getSessionId();
         const response = await api.post(`/drafts/${sessionId}`, { changes });
         return response.data;
     } catch (error) {
@@ -65,12 +62,37 @@ export const saveDraftChanges = async (sessionId, changes) => {
 };
 
 // Get all draft changes for a session
-export const getDraftChanges = async (sessionId) => {
+export const getDraftChanges = async () => {
     try {
+        const sessionId = getSessionId();
         const response = await api.get(`/drafts/${sessionId}`);
         return response.data;
     } catch (error) {
         console.error('Error getting draft changes:', error);
+        throw error;
+    }
+};
+
+// Discard all draft changes
+export const discardDraftChanges = async () => {
+    try {
+        const sessionId = getSessionId();
+        const response = await api.delete(`/drafts/${sessionId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error discarding draft changes:', error);
+        throw error;
+    }
+};
+
+// Submit changes for approval
+export const submitChanges = async (notes) => {
+    try {
+        const sessionId = getSessionId();
+        const response = await api.post(`/submit/${sessionId}`, { notes });
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting changes:', error);
         throw error;
     }
 };
