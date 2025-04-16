@@ -50,6 +50,21 @@ const TableEditor = () => {
         loadTableData();
     }, [page, rowsPerPage]);
 
+    useEffect(() => {
+        // Check if we have data from router state
+        if (location.state?.tableData) {
+            const { tableData } = location.state;
+            setTableData(tableData.items || []);
+            setTotalCount(tableData.totalCount || 0);
+            setPage(tableData.page - 1 || 0); // Adjust for 0-based pagination
+            setRowsPerPage(tableData.pageSize || 10);
+            setLoading(false);
+        } else {
+            // Fall back to loading data via API
+            loadTableData();
+        }
+    }, [location.state]);
+
     const loadTableData = async () => {
         try {
             setLoading(true);

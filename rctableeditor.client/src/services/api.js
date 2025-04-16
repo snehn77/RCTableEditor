@@ -38,9 +38,10 @@ export const getFilters = async () => {
     }
 };
 
-// API function for querying table data
+// src/services/api.js - Update the queryTableData function
 export const queryTableData = async (queryParams) => {
     try {
+        console.log('Querying table data with params:', queryParams);
         const response = await api.post('/tabledata/query', queryParams);
         return response.data;
     } catch (error) {

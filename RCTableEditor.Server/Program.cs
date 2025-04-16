@@ -13,6 +13,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString));
 
+// Add this to RCTableEditor.Server/Program.cs in the services configuration section
+builder.Services.AddScoped<ExternalDbService>();
+
+// Add the external database connection string to appsettings.json
+// "ConnectionStrings": {
+//    "DefaultConnection": "Data Source=RCTableEditor.db",
+//    "ExternalDatabase": "Server=your-server;Database=your-db;User Id=your-user;Password=your-password;"
+// },
+
 // Configure LiteDB for draft storage
 builder.Services.AddSingleton<DraftStorageService>();
 

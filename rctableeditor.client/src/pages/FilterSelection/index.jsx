@@ -1,16 +1,14 @@
+// src/pages/FilterSelection/index.jsx - Enhanced version
 import React, { useState, useEffect } from 'react';
 import {
-    Typography, Button,
-    FormControl, InputLabel, Select, MenuItem,
-    OutlinedInput, Chip
+    Typography, Button, FormControl, InputLabel,
+    Select, MenuItem, OutlinedInput, Chip,
+    Alert, CircularProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { getFilters } from '../../services/api';
+import { getFilters, queryTableData } from '../../services/api';
 import {
-    FilterContainer,
-    FormContainer,
-    FilterActionsContainer,
-    ChipContainer
+    FilterContainer, FormContainer, FilterActionsContainer, ChipContainer
 } from './styles';
 
 const FilterSelection = () => {
@@ -24,13 +22,14 @@ const FilterSelection = () => {
     const [selectedLayers, setSelectedLayers] = useState([]);
     const [selectedOperations, setSelectedOperations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [loadingData, setLoadingData] = useState(false);
 
     useEffect(() => {
         const fetchFilters = async () => {
             try {
                 setLoading(true);
                 const data = await getFilters();
-                console.log('Filters response:', data);
                 setFilters({
                     processes: data?.processes || [],
                     layers: data?.layers || [],
@@ -38,6 +37,7 @@ const FilterSelection = () => {
                 });
             } catch (error) {
                 console.error("Failed to fetch filters:", error);
+                setError("Failed to load filter options. Please try again.");
             } finally {
                 setLoading(false);
             }
@@ -48,34 +48,57 @@ const FilterSelection = () => {
 
     const handleProcessChange = (event) => {
         setSelectedProcess(event.target.value);
-        // In a real app, this might filter the available layers and operations
     };
 
     const handleLayerChange = (event) => {
-        const { value } = event.target;
-        setSelectedLayers(value);
+        setSelectedLayers(event.target.value);
     };
 
     const handleOperationChange = (event) => {
-        const { value } = event.target;
-        setSelectedOperations(value);
+        setSelectedOperations(event.target.value);
     };
 
-    const handleLoadData = () => {
-        if (!selectedProcess || selectedLayers.length === 0) {
-            alert('Please select a process and at least one layer');
+    const handleLoadData = async () => {
+        // Form validation
+        if (!selectedProcess) {
+            setError("Please select a process");
             return;
         }
 
-        const filterParams = {
-            sessionId: 'test-session-id', // This should come from your session management
-            processId: selectedProcess,
-            layerIds: selectedLayers,
-            operationIds: selectedOperations.length > 0 ? selectedOperations : null
-        };
+        if (selectedLayers.length === 0) {
+            setError("Please select at least one layer");
+            return;
+        }
 
-        // Navigate to table editor with filter parameters
-        navigate('/table-editor', { state: { filterParams } });
+        setError(null);
+        setLoadingData(true);
+
+        try {
+            // Create query parameters
+            const queryParams = {
+                sessionId: 'temp-session-id', // We'll implement proper session management later
+                processId: selectedProcess,
+                layerIds: selectedLayers,
+                operationIds: selectedOperations.length > 0 ? selectedOperations : null,
+                page: 1,
+                pageSize: 50
+            };
+
+            // Query the data
+            const response = await queryTableData(queryParams);
+
+            // Navigate to table editor with the data and parameters
+            navigate('/table-editor', {
+                state: {
+                    tableData: response,
+                    filterParams: queryParams
+                }
+            });
+        } catch (error) {
+            console.error("Failed to load table data:", error);
+            setError("Failed to load data. Please check your selections and try again.");
+            setLoadingData(false);
+        }
     };
 
     return (
@@ -84,9 +107,11 @@ const FilterSelection = () => {
                 Select Filters
             </Typography>
 
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
             <FilterContainer>
                 {loading ? (
-                    <Typography>Loading filters...</Typography>
+                    <CircularProgress />
                 ) : (
                     <FormContainer>
                         <FormControl required fullWidth>
@@ -167,12 +192,14 @@ const FilterSelection = () => {
                                 variant="contained"
                                 color="primary"
                                 onClick={handleLoadData}
+                                disabled={loadingData}
                             >
-                                Load Data
+                                {loadingData ? <CircularProgress size={24} /> : 'Load Data'}
                             </Button>
                             <Button
                                 variant="outlined"
                                 onClick={() => navigate('/')}
+                                disabled={loadingData}
                             >
                                 Cancel
                             </Button>
